@@ -1,6 +1,6 @@
  // Import the functions you need from the SDKs you need
  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
- import { getDatabase, set, ref, get, child, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+ import { getDatabase, set, ref, get, child, onValue, update, remove, query, orderByChild, startAt, endAt } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
  import { getAuth, createUserWithEmailAndPassword, deleteUser, signOut, reauthenticateWithCredential, EmailAuthProvider, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
  // TODO: Add SDKs for Firebase products that you want to use
  // https://firebase.google.com/docs/web/setup#available-libraries
@@ -1181,8 +1181,8 @@ window.filterTable = function () {
 
 
                                     // Retrieve first name and last name for Authorized Signatory
-                    const firstNamePath = `users/k0IFkJoCviM6Xfh4utiG0fVerxq1/firstname`;
-                    const lastNamePath = `users/k0IFkJoCviM6Xfh4utiG0fVerxq1/lastname`;
+                    const firstNamePath = `users/5VXI68D2yqXpPvMfIyNJDnUaAUJ3/firstname`;
+                    const lastNamePath = `users/5VXI68D2yqXpPvMfIyNJDnUaAUJ3/lastname`;
 
                     const firstNameRef = ref(db, firstNamePath);
                     const lastNameRef = ref(db, lastNamePath);
@@ -1234,7 +1234,7 @@ window.filterTable = function () {
                         printWindow.document.write('<div class="signatory">');
                         printWindow.document.write('<p>________________________</p>');
                         printWindow.document.write('<p>' + firstName + ' ' + lastName + '</p>');
-                        printWindow.document.write('<p>Forester II/Chief, EMS</p>');
+                        printWindow.document.write('<p>Chief Officer - DENR CENRO</p>');
                         printWindow.document.write('</div>');
                         printWindow.document.write('</body></html>');
                         printWindow.document.close();
@@ -1255,63 +1255,151 @@ window.filterTable = function () {
 
 
                 
-//   // Function to update the chart with new data
-//   function updateChart(data) {
-//     var soundData = [];
-//     var smokeData = [];
-//     var fireData = [];
-//     var labels = [];
+  // Function to update the chart with new data
+  function updateChart(data) {
+    var soundData = [];
+    var smokeData = [];
+    var fireData = [];
+    var labels = [];
 
-//     data.forEach(function(entry) {
-//       if (entry.SoundSensor !== undefined && entry.SmokeSensor !== undefined && entry.FlameSensor !== undefined && entry.dateTime !== undefined) {
-//         soundData.push(entry.SoundSensor);
-//         fireData.push(entry.FlameSensor);
-//         smokeData.push(entry.SmokeSensor);
-//         labels.push(entry.dateTime);
-//       } else {
-//         console.warn('Invalid data entry:', entry);
-//       }
+    data.forEach(function(entry) {
+      if (entry.SoundSensor !== undefined && entry.SmokeSensor !== undefined && entry.FlameSensor !== undefined && entry.dateTime !== undefined) {
+        soundData.push(entry.SoundSensor);
+        fireData.push(entry.FlameSensor);
+        smokeData.push(entry.SmokeSensor);
+        labels.push(entry.dateTime);
+      } else {
+        console.warn('Invalid data entry:', entry);
+      }
+    });
+
+    console.log('Sound Data:', soundData);
+    console.log('Smoke Data:', smokeData);
+    console.log('Fire Data:', fireData);
+    console.log('Labels:', labels);
+
+    // Update the chart's series data and labels
+    chart.updateSeries([{
+      name: 'Sound',
+      type: 'area',
+      data: soundData
+    }, {
+      name: 'Smoke',
+      type: 'line',
+      data: smokeData
+    }, {
+      name: 'Fire',
+      type: 'line',
+      data: fireData
+    }]);
+
+    chart.updateOptions({
+      labels: labels
+    });
+  }
+
+//   // Reference to the database service
+  const sensorDataRef = ref(db, 'Reports');
+
+//   // Fetch data from Firebase
+//   onValue(sensorDataRef, (snapshot) => {
+//     const data = [];
+//     snapshot.forEach((childSnapshot) => {
+//       data.push(childSnapshot.val());
 //     });
 
-//     console.log('Sound Data:', soundData);
-//     console.log('Smoke Data:', smokeData);
-//     console.log('Fire Data:', fireData);
-//     console.log('Labels:', labels);
+//     updateChart(data);
+//   });
 
-//     // Update the chart's series data and labels
-//     chart.updateSeries([{
-//       name: 'Sound',
-//       type: 'area',
-//       data: soundData
-//     }, {
-//       name: 'Smoke',
-//       type: 'line',
-//       data: smokeData
-//     }, {
-//       name: 'Fire',
-//       type: 'line',
-//       data: fireData
-//     }]);
+// // Function to fetch data based on the selected date range
+// function fetchData() {
+//     const startDateInput = document.getElementById('start-date').value;
+//     const endDateInput = document.getElementById('end-date').value;
 
-//     chart.updateOptions({
-//       labels: labels
+//     if (!startDateInput || !endDateInput) {
+//         alert('Please select both start and end dates.');
+//         return;
+//     }
+
+//     const startDate = new Date(startDateInput).toISOString();
+//     const endDate = new Date(endDateInput).toISOString();
+
+//     //const queryRef = query(sensorDataRef, orderByChild('date'), startAt(startDate), endAt(endDate));
+//     const queryRef = sensorDataRef.orderByChild('dateTime').startAt(startDate).endAt(endDate);
+    
+//     queryRef.once('value').then(snapshot => {
+//         const data = [];
+//         snapshot.forEach(childSnapshot => {
+//             data.push(childSnapshot.val());
+//         });
+
+//         updateChart(data);
+//     }).catch(error => {
+//         console.error('Error fetching data:', error);
 //     });
-//   }
-
-// //   // Reference to the database service
-//   const sensorDataRef = ref(db, 'Reports');
-
-// //   // Fetch data from Firebase
-// //   onValue(sensorDataRef, (snapshot) => {
-// //     const data = [];
-// //     snapshot.forEach((childSnapshot) => {
-// //       data.push(childSnapshot.val());
-// //     });
-
-// //     updateChart(data);
-// //   });
+// }
 
 
+
+
+
+//     get(queryRef).then((snapshot) => {
+//         const data = [];
+//         snapshot.forEach((childSnapshot) => {
+//             data.push(childSnapshot.val());
+//         });
+
+//         updateChart(data);
+//     }).catch((error) => {
+//         console.error('Error fetching data:', error);
+//     });
+// }
+
+
+ // Function to fetch data based on the selected date range
+ function fetchData() {
+    const startDateInput = document.getElementById('start-date').value;
+    const endDateInput = document.getElementById('end-date').value;
+
+    if (!startDateInput || !endDateInput) {
+        alert('Please select both start and end dates.');
+        return;
+    }
+
+    const startDate = new Date(startDateInput).toISOString();
+    const endDate = new Date(endDateInput).toISOString();
+
+    const dataQuery = query(sensorDataRef, orderByChild('dateTime'), startAt(startDate), endAt(endDate));
+
+    get(dataQuery).then(snapshot => {
+        const data = [];
+        snapshot.forEach(childSnapshot => {
+            data.push(childSnapshot.val());
+        });
+
+        updateChart(data);
+    }).catch(error => {
+        console.error('Error fetching data:', error);
+    });
+}
+
+
+// Fetch data from Firebase once the page has loaded
+// window.addEventListener('load', () => {
+//     get(sensorDataRef).then((snapshot) => {
+//       const data = [];
+//       snapshot.forEach((childSnapshot) => {
+//         data.push(childSnapshot.val());
+//       });
+  
+//       updateChart(data);
+//     }).catch((error) => {
+//       console.error('Error fetching data:', error);
+//     });
+//   });
+
+
+  
 // // Fetch data from Firebase once the page has loaded
 // window.addEventListener('load', () => {
 //     get(sensorDataRef).then((snapshot) => {
@@ -1326,100 +1414,6 @@ window.filterTable = function () {
 //     });
 //   });
 
-  
-  //edit report modal.
-  // Ensure that Firebase and Bootstrap are properly included in your project
+// Attach event listener to the fetch data button
+document.getElementById('fetch-data').addEventListener('click', fetchData);
 
-// auth.onAuthStateChanged((user) => {
-//     if (user) {
-//         // User is signed in
-
-//         // Event listener for the "ViewReport" button click
-//         document.getElementById('ViewReport').addEventListener('click', () => {
-//             // Assuming you have a way to get the datetime value for the report
-//             var reportDateTime = document.getElementById('datetimeInput').value; // This needs to be correctly set
-
-//             if (reportDateTime) {
-//                 // Reference to the report data in the Realtime Database
-//                 const reportRef = ref(db, 'reports/' + reportDateTime);
-
-//                 // Fetch the report data
-//                 get(reportRef).then((snapshot) => {
-//                     const reportData = snapshot.val();
-//                     if (reportData) {
-//                         // Populate the modal fields with the report data
-//                         document.getElementById('nodeView').value = reportData.node || '';
-//                         document.getElementById('soundView').value = reportData.sound || '';
-//                         document.getElementById('fireView').value = reportData.fire || '';
-//                         document.getElementById('smokeView').value = reportData.smoke || '';
-//                         document.getElementById('datetimeView').value = reportData.datetime || '';
-//                     } else {
-//                         console.log("Report not found");
-//                         // Handle the case when the report is not found
-//                     }
-//                 }).catch((error) => {
-//                     console.log("Error getting report information:", error);
-//                     // Handle the error
-//                 });
-//             } else {
-//                 console.log("No datetime value provided");
-//                 // Handle the case when no datetime value is provided
-//             }
-//         });
-
-//         // Event listener for the "Update" button click
-//         document.getElementById('updateReportButton').addEventListener('click', () => {
-//             // Handle the update functionality here
-//             console.log("Update button clicked");
-//             // You can add logic to update the report or perform other actions
-//         });
-
-//     } else {
-//         // User is signed out
-//         // Handle signed-out state, if needed
-//     }
-// });
-document.addEventListener('DOMContentLoaded', () => {
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            // Event listener for the "Update" button click
-            const updateReportButton = document.getElementById('updateReportButton');
-            if (updateReportButton) {
-                updateReportButton.addEventListener('click', () => {
-                    const datetime = document.getElementById('datetimeView').value; // Use the correct input field for datetime
-                    const updatedNode = document.getElementById('nodeView').value;
-                    const updatedSound = document.getElementById('soundView').value;
-                    const updatedFire = document.getElementById('fireView').value;
-                    const updatedSmoke = document.getElementById('smokeView').value;
-
-                    if (datetime) {
-                        // Construct the report ID
-                        const reportId = `${updatedNode}-${datetime}`;
-                        const reportRef = ref(db, 'Reports/' + reportId);
-
-                        // Update the record with new values
-                        set(reportRef, {
-                            NodeNumber: updatedNode,
-                            SoundSensor: updatedSound,
-                            FlameSensor: updatedFire,
-                            SmokeSensor: updatedSmoke,
-                            dateTime: datetime
-                        }).then(() => {
-                            alert('Report updated successfully!');
-                        }).catch((error) => {
-                            console.error('Error updating report:', error);
-                            alert('Failed to update report. Please try again.');
-                        });
-                    } else {
-                        alert('No datetime value provided.');
-                    }
-                });
-            } else {
-                console.error('Update button not found');
-            }
-        } else {
-            // User is signed out
-            alert('You must be signed in to update reports.');
-        }
-    });
-});
