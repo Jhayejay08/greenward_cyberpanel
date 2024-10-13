@@ -974,7 +974,7 @@ window.filterTable = function () {
 
                 GetAllPhoneNumbersRealTime();
 
-                 GetAllDataRealTime();
+                 //GetAllDataRealTime();
                  displayFirebaseDataSound();
                  displayFirebaseDataFlame();
                  displayFirebaseDataSmoke();
@@ -1422,4 +1422,35 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('You must be signed in to update reports.');
         }
     });
+});
+
+
+// This will ensure the script waits for the DOM to load
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Define your refreshFilter function here
+    function refreshFilter() {
+        var rows = document.getElementById("tbody1").getElementsByTagName("tr");
+        var headers = document.getElementsByTagName("th");
+
+        // Show all columns
+        for (var i = 0; i < headers.length; i++) {
+            headers[i].style.display = "";
+        }
+
+        for (var i = 0; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName("td");
+
+            // Show all columns
+            for (var j = 0; j < cells.length; j++) {
+                cells[j].style.display = "";
+            }
+        }
+
+        // Call the GetAllDataRealTime function to reload the data
+        GetAllDataRealTime();
+    }
+
+    // Make sure the function is globally accessible
+    window.refreshFilter = refreshFilter;
 });
