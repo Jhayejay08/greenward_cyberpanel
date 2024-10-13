@@ -1378,52 +1378,7 @@ window.filterTable = function () {
 //         // User is signed out
 //         // Handle signed-out state, if needed
 //     }
-// });
-document.addEventListener('DOMContentLoaded', () => {
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            // Event listener for the "Update" button click
-            const updateReportButton = document.getElementById('updateReportButton');
-            if (updateReportButton) {
-                updateReportButton.addEventListener('click', () => {
-                    const datetime = document.getElementById('datetimeView').value; // Use the correct input field for datetime
-                    const updatedNode = document.getElementById('nodeView').value;
-                    const updatedSound = document.getElementById('soundView').value;
-                    const updatedFire = document.getElementById('fireView').value;
-                    const updatedSmoke = document.getElementById('smokeView').value;
-
-                    if (datetime) {
-                        // Construct the report ID
-                        const reportId = `${updatedNode}-${datetime}`;
-                        const reportRef = ref(db, 'Reports/' + reportId);
-
-                        // Update the record with new values
-                        set(reportRef, {
-                            NodeNumber: updatedNode,
-                            SoundSensor: updatedSound,
-                            FlameSensor: updatedFire,
-                            SmokeSensor: updatedSmoke,
-                            dateTime: datetime
-                        }).then(() => {
-                            alert('Report updated successfully!');
-                        }).catch((error) => {
-                            console.error('Error updating report:', error);
-                            alert('Failed to update report. Please try again.');
-                        });
-                    } else {
-                        alert('No datetime value provided.');
-                    }
-                });
-            } else {
-                console.error('Update button not found');
-            }
-        } else {
-            // User is signed out
-            alert('You must be signed in to update reports.');
-        }
-    });
-});
-
+// 
 
 // This will ensure the script waits for the DOM to load
 document.addEventListener('DOMContentLoaded', function() {

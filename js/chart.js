@@ -122,7 +122,74 @@ var chart = new ApexCharts(document.querySelector("#area-chart"), areaChartOptio
 chart.render();
 
 
+// Event Listener for Fetching Data
+document.getElementById('fetch-data').addEventListener('click', function() {
+  const startDate = document.getElementById('start-date').value;
+  const endDate = document.getElementById('end-date').value;
 
+  if (!startDate || !endDate) {
+      alert("Please select both start and end dates.");
+      return;
+  }
+
+  // Fetch data from Firebase
+  fetchDataFromFirebase(startDate, endDate)
+      .then(data => {
+          updateChart(data);
+      })
+      .catch(error => {
+          console.error("Error fetching data:", error);
+      });
+});
+
+// Function to fetch data from Firebase
+function fetchDataFromFirebase(startDate, endDate) {
+  return new Promise((resolve, reject) => {
+      const dbRef = firebase.database().ref('path/to/your/data');
+      dbRef.orderByChild('date').startAt(startDate).endAt(endDate).once('value')
+          .then(snapshot => {
+              const data = snapshot.val();
+              if (data) {
+                  const processedData = processData(data);
+                  resolve(processedData);
+              } else {
+                  reject("No data found for the selected dates.");
+              }
+          })
+          .catch(reject);
+  });
+}
+
+// Function to process the fetched data
+function processData(data) {
+  const soundData = [];
+  const fireData = [];
+  const smokeData = [];
+  const labels = [];
+
+  for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+          soundData.push(data[key].sound);
+          fireData.push(data[key].fire);
+          smokeData.push(data[key].smoke);
+          labels.push(data[key].date);
+      }
+  }
+
+  return { sound: soundData, fire: fireData, smoke: smokeData, labels: labels };
+}
+
+// Function to update the chart
+function updateChart(data) {
+  chart.updateOptions({
+      series: [
+          { name: 'Sound', type: 'area', data: data.sound },
+          { name: 'Fire', type: 'line', data: data.fire },
+          { name: 'Smoke', type: 'line', data: data.smoke }
+      ],
+      labels: data.labels
+  });
+}
 
 
 
